@@ -1,14 +1,24 @@
+use std::fs;
 use axum::{
     routing::get,
     Router,
+    response::{IntoResponse, Response},
+    http::header,
 };
+use tokio::net::TcpListener;
+
+async fn serve_gif() -> Response {
+    let data = fs::read(r"C:\Users\Valeriia Morkhat\IdeaProjects\meetup\src\files\sticker.gif").expect("Failed to read sticker.gif");
+    (
+        [(header::CONTENT_TYPE, "image/gif")],
+        data
+    ).into_response()
+}
 
 #[tokio::main]
 async fn main() {
-    // build our application with a single route
-    let app = Router::new().route("/", get(|| async { "Hello, World!" }));
+    let app = Router::new().route("/", get(serve_gif));
 
-    // run our app with hyper, listening globally on port 3000
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    let listener = TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }
