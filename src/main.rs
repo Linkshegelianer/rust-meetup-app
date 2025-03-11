@@ -38,12 +38,22 @@ async fn create_user(Json(payload): Json<CreateUser>) -> impl IntoResponse {
     (StatusCode::CREATED, Json(user)).into_response()
 }
 
+async fn get_users() -> Response {
+        let users = vec![
+            User { id: 1, username: "user1".to_string() },
+            User { id: 2, username: "user2".to_string() },
+        ];
+
+        Json(users).into_response()
+}
+
 #[tokio::main]
 async fn main() {
     tracing_subscriber::fmt::init();
 
     let app = Router::new()
         .route("/", get(serve_gif))
+        .route("/users", get(get_users))
         .route("/users", post(create_user));
 
     let listener = TcpListener::bind("0.0.0.0:3000").await.unwrap();
